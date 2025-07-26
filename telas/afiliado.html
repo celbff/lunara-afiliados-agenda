@@ -1,1 +1,118 @@
+<!-- telas/afiliado.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lunara Afiliados - Agendar Sessão</title>
+  <link rel="manifest" href="/manifest.json">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+    }
+    header {
+      background: #6a5af9;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+    main {
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .btn {
+      background: #6a5af9;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #5a4de9;
+    }
+    .comissao {
+      font-size: 14px;
+      color: green;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Agendar Sessão</h1>
+  </header>
+  <main>
+    <div id="terapeutas-lista">
+      <!-- Terapeutas serão carregados dinamicamente aqui -->
+    </div>
+  </main>
 
+  <script src="/src/services/agenda.js"></script>
+  <script>
+    // Simulação de dados (substitua por API real depois)
+    const terapeutas = [
+      { id: "T1", nome: "Dr. Ana Silva", terapias: [{ nome: "Reiki", valor: 120, comissao: 20 }] },
+      { id: "T2", nome: "Dra. Carlos Mendes", terapias: [{ nome: "Terapia Cognitiva", valor: 150, comissao: 15 }] }
+    ];
+
+    // Renderiza lista de terapeutas
+    function renderizarTerapeutas() {
+      const container = document.getElementById('terapeutas-lista');
+      terapeutas.forEach(terapeuta => {
+        terapeuta.terapias.forEach(terapia => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <h3>${terapeuta.nome} - ${terapia.nome}</h3>
+            <p>Valor: R$ ${terapia.valor.toFixed(2)}</p>
+            <p class="comissao">Sua comissão: R$ ${(terapia.valor * (terapia.comissao / 100)).toFixed(2)}</p>
+            <button class="btn" onclick="agendar('${terapeuta.id}', '${terapeuta.nome}', '${terapia.nome}', ${terapia.valor})">
+              Agendar Agora
+            </button>
+          `;
+          container.appendChild(card);
+        });
+      });
+    }
+
+    // Função de agendamento
+    async function agendar(terapeutaId, terapeutaNome, terapiaNome, valor) {
+      const agendaService = new AgendaService();
+
+      // Simula data atual
+      const data = new Date().toISOString().split('T')[0];
+
+      // Cria o agendamento
+      const novoAgendamento = {
+        terapeutaId,
+        terapeutaNome,
+        terapia: terapiaNome,
+        valor,
+        data,
+        sincronizado: false // Marcado como não sincronizado inicialmente
+      };
+
+      try {
+        await agendaService.adicionar(novoAgendamento);
+        alert(`Agendamento confirmado!\nSua comissão: R$ ${(valor * 0.2).toFixed(2)}`);
+      } catch (error) {
+        console.error("Erro ao agendar:", error);
+        alert("Ocorreu um erro ao agendar. Tente novamente.");
+      }
+    }
+
+    window.onload = renderizarTerapeutas;
+  </script>
+</body>
+</html>
